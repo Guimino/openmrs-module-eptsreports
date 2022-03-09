@@ -26,6 +26,8 @@ public class SetupListPatientsInitiatedTPTReport extends EptsDataExportManager {
 
   @Autowired private TxRttDataset txRttDataset;
 
+  @Autowired private DatinCodeDataSet DatinCodeDataSet;
+
   @Override
   public String getExcelDesignUuid() {
     return "65e364d6-9be0-11e9-a7a2-cb23750cc2d0";
@@ -67,6 +69,10 @@ public class SetupListPatientsInitiatedTPTReport extends EptsDataExportManager {
             this.genericCohortQueries.generalSql(
                 "baseCohortQuery", BaseQueries.getBaseCohortQuery()),
             "endDate=${endDate},location=${location}"));
+
+    rd.addDataSetDefinition(
+        "D",
+        Mapped.mapStraightThrough(this.DatinCodeDataSet.constructDataset(this.getParameters())));
 
     return rd;
   }
