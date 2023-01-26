@@ -79,12 +79,14 @@ public class TxMLPatientsWhoMissedNextApointmentCalculation extends TxMLPatientC
         TxMLPatientsWhoMissedNextApointmentCalculation.getNewEvaluationContext(parameters);
 
     this.excludeTransferredOutFromPreviousReportingPeriod(
+        context,
         newContext,
         resultMap,
         lastFilaCalculationResult,
         lastSeguimentoCalculationResult,
         lastRecepcaoLevantamentoResult);
     this.excludeDeadFromPreviousReportingPeriod(
+        context,
         newContext,
         resultMap,
         lastFilaCalculationResult,
@@ -96,6 +98,7 @@ public class TxMLPatientsWhoMissedNextApointmentCalculation extends TxMLPatientC
 
   private void excludeTransferredOutFromPreviousReportingPeriod(
       EvaluationContext context,
+      EvaluationContext contextPreviousPeriod,
       CalculationResultMap numerator,
       CalculationResultMap lastFilaCalculationResult,
       CalculationResultMap lastSeguimentoCalculationResult,
@@ -104,14 +107,14 @@ public class TxMLPatientsWhoMissedNextApointmentCalculation extends TxMLPatientC
     Map<Integer, Date> transferedOutByProgram =
         this.disaggregationProcessor
             .findMapMaxPatientStateDateByProgramAndPatientStateAndPatientStateEndDateNullAndEndDate(
-                context,
+                contextPreviousPeriod,
                 this.hivMetadata.getARTProgram(),
                 this.hivMetadata.getTransferredOutToAnotherHealthFacilityWorkflowState());
 
     Map<Integer, Date> transferrdOutInFichaClinica =
         this.disaggregationProcessor
             .findMapMaxEncounterDatetimeByEncountersAndQuestionsAndAnswerAndEndOfReportingPeriod(
-                context,
+                contextPreviousPeriod,
                 this.hivMetadata.getAdultoSeguimentoEncounterType().getEncounterTypeId(),
                 Arrays.asList(
                     this.hivMetadata.getStateOfStayPriorArtPatient().getConceptId(),
@@ -122,7 +125,7 @@ public class TxMLPatientsWhoMissedNextApointmentCalculation extends TxMLPatientC
     Map<Integer, Date> transferredOutInFichaResumo =
         this.disaggregationProcessor
             .findMapMaxObsDatetimeByEncountersAndQuestionsAndAnswerAndEndOfReportingPeriod(
-                context,
+                contextPreviousPeriod,
                 this.hivMetadata.getMasterCardEncounterType().getEncounterTypeId(),
                 Arrays.asList(
                     this.hivMetadata.getStateOfStayPriorArtPatient().getConceptId(),
@@ -131,7 +134,7 @@ public class TxMLPatientsWhoMissedNextApointmentCalculation extends TxMLPatientC
 
     Map<Integer, Date> transferredOutInHomeVisitForm =
         this.disaggregationProcessor.findMapMaxObsDatetimeByEncounterAndQuestionsAndAnswersInPeriod(
-            context,
+            contextPreviousPeriod,
             this.hivMetadata.getBuscaActivaEncounterType(),
             Arrays.asList(this.hivMetadata.getDefaultingMotiveConcept().getConceptId()),
             Arrays.asList(
@@ -177,6 +180,7 @@ public class TxMLPatientsWhoMissedNextApointmentCalculation extends TxMLPatientC
 
   private void excludeDeadFromPreviousReportingPeriod(
       EvaluationContext context,
+      EvaluationContext contextPreviousPeriod,
       CalculationResultMap numerator,
       CalculationResultMap lastFilaCalculationResult,
       CalculationResultMap lastSeguimentoCalculationResult,
@@ -185,13 +189,13 @@ public class TxMLPatientsWhoMissedNextApointmentCalculation extends TxMLPatientC
     Map<Integer, Date> patientsDeadInArtProgram =
         this.disaggregationProcessor
             .findMapMaxPatientStateDateByProgramAndPatientStateAndPatientStateEndDateNullAndEndDate(
-                context,
+                contextPreviousPeriod,
                 this.hivMetadata.getARTProgram(),
                 hivMetadata.getPatientHasDiedWorkflowState());
 
     Map<Integer, Date> deadInHomeVisitForm =
         this.disaggregationProcessor.findMapMaxObsDatetimeByEncounterAndQuestionsAndAnswersInPeriod(
-            context,
+            contextPreviousPeriod,
             this.hivMetadata.getBuscaActivaEncounterType(),
             Arrays.asList(
                 this.hivMetadata.getReasonPatientNotFound().getConceptId(),
@@ -200,12 +204,12 @@ public class TxMLPatientsWhoMissedNextApointmentCalculation extends TxMLPatientC
             Arrays.asList(this.hivMetadata.getPatientHasDiedConcept().getConceptId()));
 
     Map<Integer, Date> deadInDemographicModule =
-        this.disaggregationProcessor.findPatientAndDateInDemographicModule(context);
+        this.disaggregationProcessor.findPatientAndDateInDemographicModule(contextPreviousPeriod);
 
     Map<Integer, Date> deadFichaClinica =
         this.disaggregationProcessor
             .findMapMaxEncounterDatetimeByEncountersAndQuestionsAndAnswerAndEndOfReportingPeriod(
-                context,
+                contextPreviousPeriod,
                 this.hivMetadata.getAdultoSeguimentoEncounterType().getEncounterTypeId(),
                 Arrays.asList(
                     this.hivMetadata.getStateOfStayPriorArtPatient().getConceptId(),
@@ -215,7 +219,7 @@ public class TxMLPatientsWhoMissedNextApointmentCalculation extends TxMLPatientC
     Map<Integer, Date> deadFichaResumo =
         this.disaggregationProcessor
             .findMapMaxObsDatetimeByEncountersAndQuestionsAndAnswerAndEndOfReportingPeriod(
-                context,
+                contextPreviousPeriod,
                 this.hivMetadata.getMasterCardEncounterType().getEncounterTypeId(),
                 Arrays.asList(
                     this.hivMetadata.getStateOfStayPriorArtPatient().getConceptId(),
